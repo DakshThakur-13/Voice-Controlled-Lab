@@ -7,6 +7,7 @@
  * Hardware connections (example for 2-channel relay module):
  *   Relay Channel 1 (Light) - IN1 -> GPIO 32
  *   Relay Channel 2 (Fan)   - IN2 -> GPIO 33
+ *   Relay Channel 3 (Proj)  - IN3 -> GPIO 21 (optional)
  *   (Relay VCC -> 5V, GND -> GND)
  *   (Relay COM/NO/NC to AC load as per relay datasheet)
  *   (Optional: GPIO 25 - onboard LED for status)
@@ -26,9 +27,10 @@ const char* password = "<YOUR_PASSWORD>";
 WebServer server(80);
 
 // Pin assignments
-const int LED_PIN = 25;         // Onboard LED (optional)
-const int LIGHT_RELAY_PIN = 32; // Relay Channel 1 (Light)
-const int FAN_RELAY_PIN = 33;   // Relay Channel 2 (Fan)
+const int LED_PIN = 25;               // Status LED (external). Use 2 for on-board LED if preferred.
+const int LIGHT_RELAY_PIN = 32;       // Relay Channel 1 (Light) - Active-LOW
+const int FAN_RELAY_PIN  = 33;        // Relay Channel 2 (Fan)   - Active-LOW
+const int PROJECTOR_RELAY_PIN = 21;   // Relay Channel 3 (Proj)  - Active-LOW (optional)
 
 // Simple helper to send HTTP 200 response
 void respondOK(const char* msg) {
@@ -46,25 +48,13 @@ void handleLedOff() {
   respondOK("LED OFF"); 
 }
 
-void handleFanOn() { 
-  digitalWrite(FAN_RELAY_PIN, HIGH); 
-  respondOK("Fan ON"); 
-}
-
-void handleFanOff() { 
-  digitalWrite(FAN_RELAY_PIN, LOW); 
-  respondOK("Fan OFF"); 
-}
-
-void handleLightOn() { 
-  digitalWrite(LIGHT_RELAY_PIN, HIGH); 
-  respondOK("Light ON"); 
-}
-
-void handleLightOff() { 
-  digitalWrite(LIGHT_RELAY_PIN, LOW); 
-  respondOK("Light OFF"); 
-}
+// Relays are Active-LOW: LOW = ON, HIGH = OFF
+void handleFanOn()  { digitalWrite(FAN_RELAY_PIN, LOW);  respondOK("Fan ON"); }
+void handleFanOff() { digitalWrite(FAN_RELAY_PIN, HIGH); respondOK("Fan OFF"); }
+void handleLightOn()  { digitalWrite(LIGHT_RELAY_PIN, LOW);  respondOK("Light ON"); }
+void handleLightOff() { digitalWrite(LIGHT_RELAY_PIN, HIGH); respondOK("Light OFF"); }
+void handleProjectorOn()  { digitalWrite(PROJECTOR_RELAY_PIN, LOW);  respondOK("Projector ON"); }
+void handleProjectorOff() { digitalWrite(PROJECTOR_RELAY_PIN, HIGH); respondOK("Projector OFF"); }
 
 // Health check endpoint
 void handleStatus() {
@@ -78,21 +68,39 @@ void handleNotFound() {
   server.send(404, "text/plain", "Not Found");
 }
 
+// Group control: turn all relays ON/OFF
+void handleAllOn() {
+  digitalWrite(LIGHT_RELAY_PIN, LOW);
+  digitalWrite(FAN_RELAY_PIN, LOW);
+  digitalWrite(PROJECTOR_RELAY_PIN, LOW);
+  digitalWrite(LED_PIN, HIGH);
+  respondOK("ALL ON");
+}
+
+void handleAllOff() {
+  digitalWrite(LIGHT_RELAY_PIN, HIGH);
+  digitalWrite(FAN_RELAY_PIN, HIGH);
+  digitalWrite(PROJECTOR_RELAY_PIN, HIGH);
+  digitalWrite(LED_PIN, LOW);
+  respondOK("ALL OFF");
+}
+
 void setup() {
   Serial.begin(115200);
   delay(200);
 
   // Configure GPIO pins as outputs
   pinMode(LED_PIN, OUTPUT);
-  pinMode(PROJECTOR_PIN, OUTPUT);
-  pinMode(FAN_PIN, OUTPUT);
-  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(PROJECTOR_RELAY_PIN, OUTPUT);
+  pinMode(FAN_RELAY_PIN, OUTPUT);
+  pinMode(LIGHT_RELAY_PIN, OUTPUT);
 
-  // Start with all devices off
+  // Start with all RELAYS OFF (Active-LOW => OFF = HIGH)
+  digitalWrite(LIGHT_RELAY_PIN, HIGH);
+  digitalWrite(FAN_RELAY_PIN, HIGH);
+  digitalWrite(PROJECTOR_RELAY_PIN, HIGH);
+  // LED default off (active-high LED). If using on-board active-LOW LED (GPIO2), invert accordingly.
   digitalWrite(LED_PIN, LOW);
-  digitalWrite(PROJECTOR_PIN, LOW);
-  digitalWrite(FAN_PIN, LOW);
-  digitalWrite(LIGHT_PIN, LOW);
 
   // Connect to Wi-Fi network
   Serial.printf("Connecting to %s\n", ssid);
@@ -127,6 +135,8 @@ void setup() {
   server.on("/fan/off", handleFanOff);
   server.on("/light/on", handleLightOn);
   server.on("/light/off", handleLightOff);
+  server.on("/all/on", handleAllOn);
+  server.on("/all/off", handleAllOff);
   server.on("/status", handleStatus);
   server.onNotFound(handleNotFound);
 

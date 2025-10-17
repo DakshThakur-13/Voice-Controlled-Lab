@@ -92,16 +92,24 @@ pytest -v
 flake8 voice_controller.py
 ```
 
+##  Architecture
+
+![System flow: voice -> Python controller -> HTTP -> ESP32 -> relays (active-LOW)](docs/diagrams/system-overview.png)
+
 ##  Hardware Wiring
 
 ### Example: 2-Channel Relay Module (Light & Fan)
 
-| ESP32 Pin | Relay Channel | Device | Notes                |
-|-----------|--------------|--------|----------------------|
-| GPIO 32   | IN1          | Light  | Normally Open (NO)   |
-| GPIO 33   | IN2          | Fan    | Normally Open (NO)   |
+| ESP32 Pin | Relay Channel | Device   | Notes                       |
+|-----------|---------------|----------|-----------------------------|
+| GPIO 32   | IN1           | Light    | Active-LOW input to relay   |
+| GPIO 33   | IN2           | Fan      | Active-LOW input to relay   |
+| GPIO 21   | IN3 (optional)| Projector| Active-LOW input to relay   |
 | 5V        | VCC          | Relay  | Power relay module   |
 | GND       | GND          | Relay  | Ground connection    |
+
+**Relay Input Logic:**
+- Active-LOW relay modules: LOW turns relay ON; HIGH turns it OFF.
 
 **Relay Output Wiring:**
 - Connect the AC live wire to the relay COM terminal.
@@ -110,7 +118,7 @@ flake8 voice_controller.py
 - Always follow relay and AC safety guidelines!
 
 **Optional:**
-- GPIO 25: Onboard LED for status indication (not required for relays).
+- GPIO 25: External status LED (active-HIGH). If using the on-board LED, use GPIO 2 (often active-LOW).
 
 ```
 [ESP32 GPIO 32] ----> [Relay IN1] ----> [Light]
@@ -118,6 +126,21 @@ flake8 voice_controller.py
 ```
 
 > See the Arduino code for pin assignments and endpoint details.
+
+### HTTP Endpoints
+
+Examples (replace YOUR_ESP32_IP):
+
+```
+http://YOUR_ESP32_IP/light/on
+http://YOUR_ESP32_IP/light/off
+http://YOUR_ESP32_IP/fan/on
+http://YOUR_ESP32_IP/fan/off
+http://YOUR_ESP32_IP/projector/on
+http://YOUR_ESP32_IP/projector/off
+http://YOUR_ESP32_IP/all/on
+http://YOUR_ESP32_IP/all/off
+```
 
 ##  Security
 
