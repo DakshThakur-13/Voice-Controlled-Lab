@@ -1,6 +1,10 @@
-﻿# Contributing to Voice Controlled Lab
+﻿# Contributing to Voice-Controlled Lab
 
-Thank you for your interest in contributing! We welcome contributions from the community.
+Thank you for considering contributing to this project!
+
+## Repository
+
+GitHub: https://github.com/DakshThakur-13/Voice-Controlled-Lab
 
 ## How to Contribute
 
@@ -43,4 +47,4 @@ Thank you for your interest in contributing! We welcome contributions from the c
 ## Questions?
 Feel free to open an issue for any questions or clarifications.
 
-Thank you for contributing! 
+Thank you for contributing!

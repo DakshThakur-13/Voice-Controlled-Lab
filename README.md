@@ -1,12 +1,14 @@
-﻿#  Voice Controlled Lab
+﻿# Voice-Controlled Lab
 
-[![CI](https://github.com/YOUR_USERNAME/Voice_Controlled_Lab/workflows/CI/badge.svg)](https://github.com/YOUR_USERNAME/Voice_Controlled_Lab/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+Voice-controlled ESP32 lab automation.
 
-A voice-controlled automation system for laboratory equipment using Python speech recognition and ESP32 microcontroller.
+Listens for voice commands via microphone and sends HTTP requests to an ESP32 web server to control connected devices (lights, fans, etc).
 
-##  Features
+## Repository
+
+GitHub: https://github.com/DakshThakur-13/Voice-Controlled-Lab
+
+## Features
 
 -  **Voice Control**: Natural language commands for device control
 -  **ESP32 Integration**: Web-based device control via HTTP
@@ -92,12 +94,30 @@ flake8 voice_controller.py
 
 ##  Hardware Wiring
 
-| Device | GPIO Pin |
-|--------|----------|
-| LED | 25 |
-| Projector | 33 |
-| Fan | 32 |
-| Light | 21 |
+### Example: 2-Channel Relay Module (Light & Fan)
+
+| ESP32 Pin | Relay Channel | Device | Notes                |
+|-----------|--------------|--------|----------------------|
+| GPIO 32   | IN1          | Light  | Normally Open (NO)   |
+| GPIO 33   | IN2          | Fan    | Normally Open (NO)   |
+| 5V        | VCC          | Relay  | Power relay module   |
+| GND       | GND          | Relay  | Ground connection    |
+
+**Relay Output Wiring:**
+- Connect the AC live wire to the relay COM terminal.
+- Connect the device (light/fan) to the NO terminal.
+- When the relay is activated, the circuit closes and powers the device.
+- Always follow relay and AC safety guidelines!
+
+**Optional:**
+- GPIO 25: Onboard LED for status indication (not required for relays).
+
+```
+[ESP32 GPIO 32] ----> [Relay IN1] ----> [Light]
+[ESP32 GPIO 33] ----> [Relay IN2] ----> [Fan]
+```
+
+> See the Arduino code for pin assignments and endpoint details.
 
 ##  Security
 
@@ -122,8 +142,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ##  Support
 
 -  [Report a bug](https://github.com/YOUR_USERNAME/Voice_Controlled_Lab/issues)
--  [Request a feature](https://github.com/YOUR_USERNAME/Voice_Controlled_Lab/issues)
--  [Documentation](https://github.com/YOUR_USERNAME/Voice_Controlled_Lab/wiki)
+-  [Request a feature](https://github.com/YOUR_USERNAME/Voice-Controlled-Lab/issues)
+-  [Documentation](https://github.com/YOUR_USERNAME/Voice-Controlled-Lab/wiki)
 
 ---
 

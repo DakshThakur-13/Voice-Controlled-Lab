@@ -67,7 +67,9 @@ class VoiceController:
         self.session = build_session()
         self.running = True
 
-        # Map voice commands to ESP32 endpoints
+        # Map voice commands to ESP32 endpoints (relay wiring)
+        # Relay Channel 1 (GPIO 32): Light
+        # Relay Channel 2 (GPIO 33): Fan
         # Order matters - more specific phrases should come first
         self.command_map: Dict[Iterable[str], str] = {
             ("turn everything on", "turn all on", "all on"): "all/on",
@@ -76,8 +78,6 @@ class VoiceController:
             ("led off", "turn off led", "turn led off"): "led/off",
             ("light on", "turn on light", "turn light on"): "light/on",
             ("light off", "turn off light", "turn light off"): "light/off",
-            ("projector on", "turn on projector"): "projector/on",
-            ("projector off", "turn off projector"): "projector/off",
             ("fan on", "turn on fan"): "fan/on",
             ("fan off", "turn off fan"): "fan/off",
         }

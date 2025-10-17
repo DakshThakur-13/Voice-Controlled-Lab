@@ -4,11 +4,12 @@
  * Simple web server that controls lab equipment via GPIO pins.
  * Receives HTTP requests and toggles devices on/off.
  * 
- * Hardware connections:
- *   GPIO 25 - LED
- *   GPIO 33 - Projector relay
- *   GPIO 32 - Fan relay  
- *   GPIO 21 - Light relay
+ * Hardware connections (example for 2-channel relay module):
+ *   Relay Channel 1 (Light) - IN1 -> GPIO 32
+ *   Relay Channel 2 (Fan)   - IN2 -> GPIO 33
+ *   (Relay VCC -> 5V, GND -> GND)
+ *   (Relay COM/NO/NC to AC load as per relay datasheet)
+ *   (Optional: GPIO 25 - onboard LED for status)
  */
 
 #include <WiFi.h>
@@ -25,10 +26,9 @@ const char* password = "<YOUR_PASSWORD>";
 WebServer server(80);
 
 // Pin assignments
-const int LED_PIN = 25;
-const int PROJECTOR_PIN = 33;
-const int FAN_PIN = 32;
-const int LIGHT_PIN = 21;
+const int LED_PIN = 25;         // Onboard LED (optional)
+const int LIGHT_RELAY_PIN = 32; // Relay Channel 1 (Light)
+const int FAN_RELAY_PIN = 33;   // Relay Channel 2 (Fan)
 
 // Simple helper to send HTTP 200 response
 void respondOK(const char* msg) {
@@ -46,33 +46,23 @@ void handleLedOff() {
   respondOK("LED OFF"); 
 }
 
-void handleProjectorOn() { 
-  digitalWrite(PROJECTOR_PIN, HIGH); 
-  respondOK("Projector ON"); 
-}
-
-void handleProjectorOff() { 
-  digitalWrite(PROJECTOR_PIN, LOW); 
-  respondOK("Projector OFF"); 
-}
-
 void handleFanOn() { 
-  digitalWrite(FAN_PIN, HIGH); 
+  digitalWrite(FAN_RELAY_PIN, HIGH); 
   respondOK("Fan ON"); 
 }
 
 void handleFanOff() { 
-  digitalWrite(FAN_PIN, LOW); 
+  digitalWrite(FAN_RELAY_PIN, LOW); 
   respondOK("Fan OFF"); 
 }
 
 void handleLightOn() { 
-  digitalWrite(LIGHT_PIN, HIGH); 
+  digitalWrite(LIGHT_RELAY_PIN, HIGH); 
   respondOK("Light ON"); 
 }
 
 void handleLightOff() { 
-  digitalWrite(LIGHT_PIN, LOW); 
+  digitalWrite(LIGHT_RELAY_PIN, LOW); 
   respondOK("Light OFF"); 
 }
 
