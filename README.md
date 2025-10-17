@@ -96,6 +96,48 @@ flake8 voice_controller.py
 
 ![System flow: voice -> Python controller -> HTTP -> ESP32 -> relays (active-LOW)](docs/diagrams/system-overview.png)
 
+### System flow (Mermaid)
+
+```mermaid
+flowchart TB
+	%% User speaks a command
+	U[User Interaction\nUser says: "Turn on the light"]
+
+	%% Computer side
+	subgraph PC[Computer (Python controller)]
+		M{Listens via Microphone}
+		V[voice_controller.py]
+		STT[Converts Speech to Text\n(Google API)]
+		PARSE[Parses Text for\nkeywords: "light on"]
+		HTTP[Send HTTP GET\nhttp://ESP32_IP/light/on]
+	end
+
+	%% ESP32 side
+	subgraph MCU[ESP32 (esp32_code)]
+		S[ESP32 Web Server @ IP Address]
+		R{Receives HTTP Request}
+		H[Executes handler function\nhandleLightOn]
+		GPIO[Controls GPIO Pins]
+	end
+
+	%% Hardware outputs
+	subgraph OUT[Output Devices (Hardware)]
+		RELAY[Relay Module (Active-LOW)]
+		CH1[CH1 Light  \nGPIO32]
+		CH2[CH2 Fan    \nGPIO33]
+		CH3[CH3 Projector \nGPIO21]
+		LED[Status LED \nGPIO25]
+	end
+
+	%% Flow connections
+	U --> M --> V --> STT --> PARSE --> HTTP --> S --> R --> H --> GPIO
+	GPIO --> RELAY
+	RELAY --> CH1
+	RELAY --> CH2
+	RELAY --> CH3
+	GPIO --> LED
+```
+
 ##  Hardware Wiring
 
 ### Example: 2-Channel Relay Module (Light & Fan)
