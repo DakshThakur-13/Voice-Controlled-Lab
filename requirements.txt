@@ -1,0 +1,4 @@
+SpeechRecognition>=3.8.1
+requests>=2.28.0
+pyaudio; platform_system == "Windows"
+urllib3>=1.26.0
